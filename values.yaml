@@ -1,0 +1,99 @@
+
+replicaCount: 1
+
+imagePullSecrets:
+  type: kubernetes.io/dockerconfigjson
+  name: regcred
+  dockerconfigjson: ewoiYXV0aHMiOnsKImh0dHBzOi8==
+
+image:
+  repository: ollama/ollama
+  pullPolicy: IfNotPresent
+  tag: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+ollama:
+  gpu:
+    enabled: true
+    type: 'nvidia'
+    number: 1
+    nvidiaResource: "nvidia.com/gpu"
+
+  models: 
+    - gemma2:9b
+    
+  insecure: false
+  mountPath: ""
+
+serviceAccount:
+  create: true
+  automount: true
+
+podLabels: {}
+
+service:
+  type: ClusterIP
+  port: 11434
+  nodePort: 31434
+
+
+resources:
+  requests: {}
+    # Memory request
+    # memory: 4096Mi
+
+    # CPU request
+    # cpu: 2000m
+
+  # -- Pod limit
+  limits:
+    nvidia.com/gpu: 1
+    # Memory limit
+    # memory: 8192Mi
+
+    # CPU limit
+    # cpu: 4000m
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+# -- Additional volumes on the output Deployment definition.
+volumes: []
+# -- - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# -- Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# -- - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+persistentVolume:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  existingClaim: ""
+  size: 30Gi
+  storageClass: ""
+  volumeMode: ""
+  subPath: ""
+
+nodeSelector: {}
+
+tolerations: 
+  - key: "nvidia.com/gpu"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+affinity: {}
+
+updateStrategy:
+  type: "RollingUpdate"
